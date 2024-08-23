@@ -1,24 +1,43 @@
-import logo from './logo.svg';
+import { useState } from 'react';
+import axios from 'axios';
 import './App.css';
 
 function App() {
+
+ const[file,setFile] = useState(null);
+ function changeHandler(event)
+ {
+   setFile(event.target.files[0]);
+ }
+ async function clickHandler()
+ {
+   const formData = new FormData();
+   formData.append("lasFile",file);
+
+   try
+   {
+    const response = await axios.post("http://localhost:3000/upload",formData,{
+      headers:{
+        "Content-Type":"multipart/form-data"
+      }
+    });
+    console.log(response.data);
+   }
+   catch(error)
+   {
+     console.log(error);
+   }
+ }
+
+  
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+   <>
+     <h1>LAS File Viewer</h1>
+     <div>
+       <input type="File" onChange={changeHandler}/>
+       <button onClick={clickHandler}>File Submit</button>
+     </div>
+   </>
   );
 }
 
