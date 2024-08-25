@@ -1,27 +1,35 @@
-const express = require('express'); // For Creating the Server
-const multer = require('multer'); // Middleware for  handling file Uploads
-const {readLasFile} = require("las-reader"); // Library for reading las Files
+const express = require('express');
+const multer = require('multer');
+const { readLasFile } = require('las-reader');
+const cors = require('cors');
 
 const app = express();
-const port = process.env.PORT || 3000 ;
+const port = process.env.PORT || 5000;
 
-//Multer configuration for File Upload
+app.use(cors());
+
 const storage = multer.memoryStorage();
-const upload = multer({storage: storage});
+const upload = multer({ storage: storage });
 
-//Upload Endpoint
-app.post("/upload",upload.single("lasFile"),(req,res)=>{
-    if(!req.file)
-    {
-       return res.status(400).send(" No Files were uploaded");
+app.post('/upload', upload.single('lasFile'), (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).send('No file uploaded.');
     }
+
+    if (req.file.mimetype !== 'application/octet-stream') {
+      return res.status(400).send('Invalid file type. Please upload a LAS file.');
+    }
+
     const lasFileBuffer = req.file.buffer;
-    // Process LAS File using las-reader or other-libraries
     const lasData = readLasFile(lasFileBuffer);
-    //Store or Process lasData as needed
-    res.status(200).json({lasData});
+    res.status(200).send({ lasData });
+  } catch (error) {
+    console.error('Error processing the file:', error.message);
+    res.status(500).send('An error occurred while processing the file.');
+  }
 });
 
-app.listen(port,()=>{
-    console.log(`Server is running on http://localhost:${port}`);
+app.listen(port, () => {
+  console.log(`Server is running on http://localhost:${port}`);
 });
