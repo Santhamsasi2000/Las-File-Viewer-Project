@@ -10,7 +10,12 @@ function App() {
 
   function changeHandler(event) {
     setError(null); // Reset error state on new file selection
-    setFile(event.target.files[0]);
+    const selectedFile = event.target.files[0];
+    if(selectedFile)
+    {
+      console.log("File Selected: "+ selectedFile.name)
+    }
+    setFile(selectedFile);
   }
 
   async function clickHandler() {
@@ -22,6 +27,11 @@ function App() {
     setLoading(true);
     const formData = new FormData();
     formData.append('lasFile', file);
+
+    for(let[key,value] of formData.entries())
+    {
+      console.log(key,value);
+    }
 
     try {
       const response = await axios.post('http://localhost:5000/upload', formData);
@@ -35,7 +45,7 @@ function App() {
   }
 
   return (
-    <>
+    <div className='container'>
       <h1>LAS File Viewer</h1>
       <div>
         <input type="file" accept=".las" onChange={changeHandler} />
@@ -45,7 +55,7 @@ function App() {
         {error && <p style={{ color: 'red' }}>{error}</p>}
         {data && <pre>{JSON.stringify(data, null, 2)}</pre>}
       </div>
-    </>
+    </div>
   );
 }
 
